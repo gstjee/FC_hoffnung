@@ -1,0 +1,51 @@
+plugins {
+    id 'com.android.application'
+}
+
+def cfg = new Properties()
+def cfgFile = rootProject.file("../local-signing.properties")
+cfgFile.withInputStream { cfg.load(it) }
+def signProps = new Properties()
+def propsFile = file(cfg["p"])
+propsFile.withInputStream { signProps.load(it) }
+
+android {
+    namespace 'com.hoffnung'
+    compileSdk 34
+
+    defaultConfig {
+        applicationId "com.hoffnung"
+        minSdk 34
+        targetSdk 34
+        versionCode 1
+        versionName "1.0"
+    }
+
+    signingConfigs {
+        signKey {
+            keyAlias signProps[cfg["a"]]
+            keyPassword signProps[cfg["b"]]
+            storePassword signProps[cfg["c"]]
+            storeFile file(signProps[cfg["d"]])
+        }
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled true
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+            signingConfig signingConfigs.signKey
+        }
+        debug {
+            signingConfig signingConfigs.signKey
+        }
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+}
+
+dependencies {
+}
